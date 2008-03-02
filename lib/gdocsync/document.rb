@@ -5,7 +5,6 @@ require 'rubygems'
 require 'mechanize'
 require 'hpricot'
 require 'digest/sha2'
-require 'clothred'
 module Gdocsync
 
   class Document
