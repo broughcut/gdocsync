@@ -22,6 +22,7 @@ doc = Gdocsync::Document.find_by_title("Foo", :fetch)
 
 p doc.raw #raw html body
 p doc.markdown #raw => markdown
+p doc.redcloth #raw => markdown => html (somewhat sanitised)
 
 For interfacing with Picasa, see:
 http://github.com/broughcut/picasync
