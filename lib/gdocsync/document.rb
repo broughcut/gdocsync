@@ -5,22 +5,24 @@ require 'rubygems'
 require 'mechanize'
 require 'hpricot'
 require 'digest/sha2'
-
+require 'clothred'
 module Gdocsync
 
   class Document
 
-    attr_reader :id, :title, :updated_at, :uri
+    attr_reader :id, :title, :updated_at, :uri, :markdown, :raw
+    attr_writer :markdown, :raw
 
-    def initialize(title=nil,id=nil,uri=nil,updated_at=nil)
+    def initialize(title=nil,id=nil,updated_at=nil,raw=nil,markdown=nil)
       @title = title
       @id = id
-      @uri = uri
+      @markdown = markdown
+      @raw = raw
       @updated_at = updated_at
     end
     
     
-    def self.find(param)
+    def self.find(param,param2=nil)
       case param
       when :all
         items = []
@@ -29,18 +31,41 @@ module Gdocsync
           item = {}
           item[:title] = entry.at(:title).inner_text
           item[:updated_at] = entry.at(:updated).inner_text
-          item[:id] = entry.at(:id).inner_text.gsub(/^.*\/|\?.*$/){}
-          item[:uri] = (doc/"link[@type='text/html']")[0].attributes['href']
+          item[:id] = entry.at(:id).inner_text.gsub(/^.*%3A/){}
+          if param2 == :fetch
+            body = Call.new(:get, :body, item[:id]).response
+            tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
+            tmp.puts body
+            tmp.close
+            item[:markdown] = system("python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp")
+            item[:raw] = body
+          end
           items << item
         end
       end
       found = []
       items.each do |entry|
-        found << Document.new(entry[:title],entry[:id],entry[:uri],entry[:updated_at])
+        found << Document.new(entry[:title],entry[:id],entry[:updated_at],entry[:raw],entry[:markdown])
       end
       found
     end
-   
+
+    def self.find_by_title(title,param=nil)
+      result = "Document #{title} not found."
+      Document.find(:all).each {|doc|
+        result = doc if doc.title == title
+      }
+      if param == :fetch
+        body = Call.new(:get, :body, result.id).response
+        result.raw = body
+        tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
+        tmp.puts body
+        tmp.close
+        result.markdown = system("python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp")
+      end
+      result
+    end
+
     def create!
     end
 

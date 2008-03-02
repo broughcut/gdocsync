@@ -1,15 +1,27 @@
 Sync with Google Docs
 =====================
 
-To use google docs as an off-site text cms.
+converting html docs to markdown.
 
-Initial commit is boilerplate and only includes document list:
+Much todo.
 
-Gdocsync::Document.find(:all)
+require 'lib/gdocsync'
 
-Will ultimately convert Google Documents to textile so they can be 
-added to the local database via the user's Google feed and easily 
-integrated.
+[RAILS_ROOT =] 
+GOOGLE_EMAIL = '...'
+GOOGLE_PASS = '...'
+GOOGLE_USER = '...'
+
+docs = Gdocsync::Document.find(:all)
+doc = Gdocsync::Document.find_by_title("Foo")
+
+Include document body:
+
+docs = Gdocsync::Document.find(:all, :fetch)
+doc = Gdocsync::Document.find_by_title("Foo", :fetch)
+
+p doc.raw #raw html body
+p doc.markdown #raw => markdown
 
 For interfacing with Picasa, see:
 http://github.com/broughcut/picasync
