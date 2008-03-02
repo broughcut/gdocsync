@@ -1,0 +1,15 @@
+Sync with Google Docs
+=====================
+
+To use google docs as an off-site text cms.
+
+Initial commit is boilerplate and only includes document list:
+
+Gdocsync::Document.find(:all)
+
+Will ultimately convert Google Documents to textile so they can be 
+added to the local database via the user's Google feed and easily 
+integrated.
+
+For interfacing with Picasa, see:
+http://github.com/broughcut/picasync
