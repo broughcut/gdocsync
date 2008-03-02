@@ -36,8 +36,8 @@ module Gdocsync
             tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
             tmp.puts body
             tmp.close
-            item[:markdown] = system("python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp")
-            item[:raw] = body
+            item[:markdown] = `python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp`
+            item[:raw] = body 
           end
           items << item
         end
@@ -60,7 +60,8 @@ module Gdocsync
         tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
         tmp.puts body
         tmp.close
-        result.markdown = system("python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp")
+        result.raw = body
+        result.markdown = `python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp`
       end
       result
     end
