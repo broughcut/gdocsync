@@ -5,6 +5,8 @@ require 'rubygems'
 require 'mechanize'
 require 'hpricot'
 require 'digest/sha2'
+require 'redcloth'
+
 module Gdocsync
 
   class Document
@@ -33,10 +35,6 @@ module Gdocsync
           item[:id] = entry.at(:id).inner_text.gsub(/^.*%3A/){}
           if param2 == :fetch
             body = Call.new(:get, :body, item[:id]).response
-            tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
-            tmp.puts body
-            tmp.close
-            item[:markdown] = `python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp`
             item[:raw] = body 
           end
           items << item
@@ -57,13 +55,16 @@ module Gdocsync
       if param == :fetch
         body = Call.new(:get, :body, result.id).response
         result.raw = body
-        tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
-        tmp.puts body
-        tmp.close
-        result.raw = body
-        result.markdown = `python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp`
       end
       result
+    end
+
+    def markdown
+      to_markdown
+    end
+
+    def redcloth
+      RedCloth.new(to_markdown).to_html(:markdown)
     end
 
     def create!
@@ -71,6 +72,14 @@ module Gdocsync
 
 
     def delete!
+    end
+
+    private
+
+    def to_markdown
+      tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
+      tmp.puts raw;tmp.close
+      markdown = `python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp`
     end
 
 
