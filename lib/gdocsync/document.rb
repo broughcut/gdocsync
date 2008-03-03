@@ -60,11 +60,15 @@ module Gdocsync
       result
     end
 
+    def safe_html
+      tag_strip(raw)
+    end
+
     def textile
       html_to_textile
     end
 
-    def cloth
+    def clothe
       html = RedCloth.new(textile).to_html
       output = html.gsub(/<p>p\.<\/p>|%|<pre>|<code>|<\/pre>|<\/code>/){}#.gsub(/[aA-zZ]%/){|x| x.gsub(/%/,'')}
     end
@@ -85,11 +89,23 @@ module Gdocsync
           path.remove_attribute(attribute)
         end
       end
+      (doc/:form).remove
+      (doc/:script).remove
       parser = HTMLToTextileParser.new
       parser.feed(doc.to_s)
-      textile = parser.to_textile
+      textile = html_escape(parser.to_textile)
     end
 
+    def tag_strip(s)
+      doc = Hpricot(s)
+      (doc/:form).remove
+      (doc/:script).remove
+      doc.to_s
+    end
+
+    def html_escape(s)
+      s.to_s.gsub(/&/, "&amp;").gsub(/\"/, "&quot;").gsub(/>/,"&gt;").gsub(/</,"&lt;")
+    end
 
   end
 

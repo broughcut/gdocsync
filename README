@@ -20,9 +20,10 @@ Include document body:
 docs = Gdocsync::Document.find(:all, :fetch)
 doc = Gdocsync::Document.find_by_title("Foo", :fetch)
 
-p doc.raw #raw html body
-p doc.textile #raw => textile
-p doc.cloth #raw => textile => html (somewhat sanitised)
+doc.raw #raw html body
+doc.safe_html #sans script and form tags
+doc.textile #raw => textile => any left-over html escaped.
+p doc.clothe #as textile, and back to sanitised html via RedCloth
 
 For interfacing with Picasa, see:
 http://github.com/broughcut/picasync
