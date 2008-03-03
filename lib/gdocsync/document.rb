@@ -5,6 +5,7 @@ require 'rubygems'
 require 'mechanize'
 require 'hpricot'
 require 'digest/sha2'
+require 'gdocsync/html2textile'
 require 'redcloth'
 
 module Gdocsync
@@ -59,12 +60,13 @@ module Gdocsync
       result
     end
 
-    def markdown
-      to_markdown
+    def textile
+      html_to_textile
     end
 
-    def redcloth
-      RedCloth.new(to_markdown).to_html(:markdown)
+    def cloth
+      html = RedCloth.new(textile).to_html
+      output = html.gsub(/\<p\>p\.\<\/p\>|%/){}#.gsub(/[aA-zZ]%/){|x| x.gsub(/%/,'')}
     end
 
     def create!
@@ -76,10 +78,16 @@ module Gdocsync
 
     private
 
-    def to_markdown
-      tmp = File.new("#{RAILS_ROOT}/tmp/gdocsync_document.tmp","w+")
-      tmp.puts raw;tmp.close
-      markdown = `python #{Dir.pwd}/lib/html2text.py #{RAILS_ROOT}/tmp/gdocsync_document.tmp`
+    def html_to_textile
+      doc = Hpricot(raw)
+      (doc/:path).each do |path|
+        [:id, :style, :class].each do |attribute|
+          path.remove_attribute(attribute)
+        end
+      end
+      parser = HTMLToTextileParser.new
+      parser.feed(doc.to_s)
+      textile = parser.to_textile
     end
 
 
