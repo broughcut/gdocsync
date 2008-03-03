@@ -66,7 +66,7 @@ module Gdocsync
 
     def cloth
       html = RedCloth.new(textile).to_html
-      output = html.gsub(/\<p\>p\.\<\/p\>|%/){}#.gsub(/[aA-zZ]%/){|x| x.gsub(/%/,'')}
+      output = html.gsub(/<p>p\.<\/p>|%|<pre>|<code>|<\/pre>|<\/code>/){}#.gsub(/[aA-zZ]%/){|x| x.gsub(/%/,'')}
     end
 
     def create!

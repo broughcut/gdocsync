@@ -1,0 +1,15 @@
+a simple rake task to update descriptions:
+
+namespace :google do
+ 
+  task :docs => :environment do
+    require '../gdocsync/lib/gdocsync'
+    
+    Property.find(:all).each do |property|
+      doc = Gdocsync::Document.find_by_title(property.title, :fetch)
+      Property.update(property.id, :description => doc.cloth)
+    end
+
+  end 
+
+end
